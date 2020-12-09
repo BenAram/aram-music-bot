@@ -1,0 +1,31 @@
+{
+  "name": "aram-music-discord-bot",
+  "version": "0.2.2",
+  "description": "Bot do Aram Music para discord",
+  "main": "src/index.ts",
+  "author": "BenAram",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node .",
+    "dev": "ts-node-dev --transpile-only --ignore-watch node_modules .",
+	  "production": "pm2 start ts-node -- -P tsconfig.json ."
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.3.3",
+    "axios": "^0.21.0",
+    "discord.js": "^12.5.0",
+    "ffmpeg-static": "^4.2.7",
+    "jimp": "^0.16.1",
+    "mongoose": "^5.11.5"
+  },
+  "devDependencies": {
+    "@types/": "discordjs/opus",
+    "@types/ffmpeg-static": "^3.0.0",
+    "@types/jimp": "^0.2.28",
+    "@types/mongoose": "^5.10.2",
+    "ts-node": "^9.1.1",
+    "ts-node-dev": "^1.0.0",
+    "tsc": "^1.20150623.0",
+    "typescript": "^4.1.2"
+  }
+}
