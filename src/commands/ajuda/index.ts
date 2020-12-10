@@ -46,6 +46,8 @@ Mostra a você as novidades da última versão lançado do aplicativo android.
 Muda o canal de boas vindas do servidor
 **${config.prefix}mensagens-deletadas "canal de texto"**
 Muda o canal de mensagens deletadas do servidor
+**${config.prefix}alertar "texto"
+Alerta todos os canais de voz com algum texto
 **${config.prefix}prefixo "novo prefixo"**
 Muda o prefixo do servidor para um novo
 **${config.prefix}expulsar "usuário" "motivo"**

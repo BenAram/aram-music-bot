@@ -1,4 +1,4 @@
-import { Client } from 'discord.js'
+import { Client, TextChannel } from 'discord.js'
 import { read, loadFont, FONT_SANS_32_BLACK } from 'jimp'
 
 import config from './config'
@@ -12,13 +12,51 @@ const client = new Client()
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
 })
+client.on('channelDelete', async (channelDeleted) => {
+    try {
+        if (channelDeleted.type !== 'text') {
+            return
+        }
+        const channel: TextChannel = channelDeleted as any
+
+        const server: any = await Server.findOne({ id: channel.guild.id })
+        if (!server) {
+            return
+        }
+
+        if (server.messagesWelcome) {
+            if (server.messagesWelcome == channel.id) {
+                server.messagesWelcome = ''
+                server.save()
+            }
+        }
+        if (server.messagesDeleted) {
+            if (server.messagesDeleted == channel.id) {
+                server.messagesDeleted = ''
+                server.save()
+            }
+        }
+    } catch(err) {
+        console.error(`Erro: ${err}`)
+    }
+})
 client.on('guildCreate', async (guild) => {
     try {
+        const channels = guild.channels.cache.filter(channel => channel.type === 'text')
+        const channel: TextChannel = channels.first() as any
+        const invite = channel.createInvite({
+            maxAge: Infinity,
+            maxUses: Infinity,
+            reason: 'Convite',
+            temporary: false,
+            unique: false
+        })
         await new Server({
             id: guild.id,
             name: guild.name,
             volume: 1,
-            prefix: config.prefix
+            prefix: config.prefix,
+            invite: (await invite).url
         }).save()
     } catch(err) {
         console.error(`Erro: ${err}`)
@@ -60,6 +98,20 @@ client.on('guildDelete', async (guild) => {
         console.error(`Erro: ${err}`)
     }
 })
+client.on('guildUpdate', async (oldGuild, guild) => {
+    try {
+        const server: any = await Server.findOne({ id: oldGuild.id })
+        if (!server) {
+            return
+        }
+        if (server.name !== oldGuild.name) {
+            server.name = guild.name
+            server.save()
+        }
+    } catch(err) {
+        console.error(`Erro: ${err}`)
+    }
+})
 client.on('messageDelete', async (msg) => {
     try {
         const server: any = await Server.findOne({ id: parseInt(msg.guild.id) })
@@ -68,6 +120,9 @@ client.on('messageDelete', async (msg) => {
                 return
             }
             if (server.messagesDeleted) {
+                if (server.channelNotDeleted == msg.channel.id) {
+                    return
+                }
                 const channel: any = msg.guild.channels.cache.find(channel => channel.id == server.messagesDeleted)
                 if (channel) {
                     channel.send(`${msg.member} apagou a seguinte mensagem: ${msg.content}`)

@@ -35,6 +35,14 @@ const ServerSchema = new Schema({
     messagesDeleted: {
         type: String,
         required: false
+    },
+    invite: {
+        type: String,
+        required: false
+    },
+    channelNotDeleted: {
+        type: String,
+        required: false
     }
 })
 

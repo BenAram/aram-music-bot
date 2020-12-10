@@ -867,6 +867,11 @@ global@~4.4.0:
     min-document "^2.19.0"
     process "^0.11.10"
 
+google-translate-tts@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/google-translate-tts/-/google-translate-tts-0.3.0.tgz#84b60d9f2dbf20351d5f9977699aa5075af822db"
+  integrity sha512-iEcjxILE+4rS1gmsRJcaJ7lW0xvYvtCW4ywONbA5nR1zuBZxaFiIuePeEjZ6m0ytNzkjjD6BlbvjORXWyJtcVg==
+
 graceful-fs@^4.1.2:
   version "4.2.4"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.4.tgz#2256bde14d3632958c465ebc96dc467ca07a29fb"

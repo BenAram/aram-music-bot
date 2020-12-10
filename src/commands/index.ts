@@ -1,10 +1,12 @@
 import { Message, Client } from 'discord.js'
 
+import alertar from './alertar'
 import ajuda from './ajuda'
 import banir from './banir'
 import bemVindo from './bem-vindo'
 import dizer from './dizer'
 import expulsar from './expulsar'
+import limpar from './limpar'
 import mensagensDeletadas from './mensagensDeletadas'
 import música from './música'
 import novidades from './novidades'
@@ -16,15 +18,17 @@ import últimaMúsica from './últimaMúsica'
 import usuário from './usuário'
 
 interface Commands {
-    [index: string]: (msg: Message, param: string, client: Client) => void
+    [index: string]: (msg: Message, param: string, client: Client) => any
 }
 
 const commands: Commands = {
+    alertar,
     ajuda,
     banir,
     'bem-vindo': bemVindo,
     dizer,
     expulsar,
+    limpar,
     'mensagens-deletadas': mensagensDeletadas,
     música,
     novidades,
@@ -35,19 +39,21 @@ const commands: Commands = {
     'última-música': últimaMúsica,
     usuário,
 
-    help: ajuda,
+    alert: alertar,
     ban: banir,
-    welcome: bemVindo,
-    say: dizer,
+    clean: limpar,
+    'deleted-messages': mensagensDeletadas,
+    help: ajuda,
     kick: expulsar,
-    'messages-deleted': mensagensDeletadas,
+    'last-music': últimaMúsica,
     music: música,
     news: novidades,
-    search: pesquisar,
-    prefix: prefixo,
     play: tocar,
-    'last-music': últimaMúsica,
-    user: usuário
+    prefix: prefixo,
+    say: dizer,
+    search: pesquisar,
+    user: usuário,
+    welcome: bemVindo
 }
 
 export default commands

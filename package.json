@@ -8,13 +8,14 @@
   "scripts": {
     "start": "ts-node .",
     "dev": "ts-node-dev --transpile-only --ignore-watch node_modules .",
-	  "production": "pm2 start ts-node -- -P tsconfig.json ."
+    "production": "pm2 start ts-node -- -P tsconfig.json ."
   },
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
     "axios": "^0.21.0",
     "discord.js": "^12.5.0",
     "ffmpeg-static": "^4.2.7",
+    "google-translate-tts": "^0.3.0",
     "jimp": "^0.16.1",
     "mongoose": "^5.11.5"
   },
