@@ -4,7 +4,7 @@ import { Server } from '../../services/db'
 
 async function Limpar(msg: Message, content: string) {
     try {
-        if (!msg.member.hasPermission('ADMINISTRATOR')) {
+        if (!msg.member.hasPermission('ADMINISTRATOR') && !msg.member.hasPermission('MANAGE_MESSAGES')) {
             return msg.reply('você não tem permissão para isto')
         }
 
@@ -16,20 +16,11 @@ async function Limpar(msg: Message, content: string) {
         server.channelNotDeleted = `${msg.channel.id}`
         server.save()
 
-        const numberToDelete = parseInt(content)
+        let numberToDelete = parseInt(content)
 
-        let messages: Array<Message> = []
-        msg.channel.messages.cache.forEach(message => {
-            messages.push(message)
-        })
-        messages = messages.reverse()
-        messages.splice(numberToDelete, messages.length)
-        messages.forEach(message => {
-            if (message.deletable) {
-                message.delete()
-            }
-        })
-
+        const fetched = await (msg as any).channel.messages.fetch({ limit: numberToDelete + 1 })
+        await (msg as any).channel
+            .bulkDelete(fetched)
         msg.reply(`${numberToDelete} mensage${numberToDelete > 1 ? 'ns' : 'm'} apagada${numberToDelete > 1 ? 's' : ''}`)
 
         await Server.findOneAndUpdate({ id: msg.guild.id }, { $set: { channelNotDeleted: '' } })

@@ -1,6 +1,5 @@
 import { Message, Client } from 'discord.js'
 
-import alertar from './alertar'
 import ajuda from './ajuda'
 import banir from './banir'
 import bemVindo from './bem-vindo'
@@ -22,7 +21,6 @@ interface Commands {
 }
 
 const commands: Commands = {
-    alertar,
     ajuda,
     banir,
     'bem-vindo': bemVindo,
@@ -39,7 +37,6 @@ const commands: Commands = {
     'última-música': últimaMúsica,
     usuário,
 
-    alert: alertar,
     ban: banir,
     clean: limpar,
     'deleted-messages': mensagensDeletadas,

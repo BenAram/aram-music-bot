@@ -1,6 +1,7 @@
-import { Message } from 'discord.js'
+import { Message, MessageEmbed } from 'discord.js'
 
 import api from '../../services/api'
+import config from '../../config'
 
 interface Music {
     name: string
@@ -37,13 +38,17 @@ async function Playlist(msg: Message, content: string) {
             msg.channel.send(data.message)
         } else {
             const playlist: Playlist = data
-            msg.channel.send(`
-${playlist.name}
-**Feita por:** ${playlist.owner}
+            const message = new MessageEmbed()
+                .setTitle(playlist.name)
+                .setURL(`http://music.benaram.com/app/playlist/${content}`)
+                .setAuthor(playlist.owner, '', `http://music.benaram.com/app/user/${playlist.owner_id}`)
+                .addField(playlist.musics.length, `Música${playlist.musics.length > 1 ?  's' : ''}`)
 
-**${playlist.musics.length}** Música${playlist.musics.length > 1 ? 's' : ''}
-Ouça aqui: http://music.benaram.com/app/playlist/${content}
-        `)
+            if (playlist.musics.length > 0) {
+                message.setImage(`${config.url}/music-bg/${encodeURIComponent(playlist.musics[0].music_background)}`)
+            }
+
+            msg.channel.send(message)
         }
     } catch(err) {
         console.error(`Erro: ${err}`)

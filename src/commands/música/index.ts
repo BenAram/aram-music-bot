@@ -1,11 +1,9 @@
-import { Message } from 'discord.js'
-import { read } from 'jimp'
+import { Message, MessageReaction, ClientUser } from 'discord.js'
 
 import api from '../../services/api'
 import config from '../../config'
 import { Server } from '../../services/db'
 
-import removeSpaces from '../../utils/removeSpaces'
 import treatMusic from '../../utils/treatMusic'
 
 interface Music {
@@ -40,9 +38,24 @@ async function Música(msg: Message, content: string) {
         if (data.error) {
             msg.channel.send(data.message)
         } else {
-            const image = await read(`${config.url}/music-bg/${removeSpaces(music.music_background)}`)
-            image.write('music.png')
-            msg.channel.send(treatMusic(music, content, prefix), { files: ['music.png'] })
+            const message = await msg.channel.send(treatMusic(music, content, prefix))
+            await message.react('▶️')
+            const collector = message.createReactionCollector((reaction: MessageReaction, user: ClientUser) => {
+                if (user.id !== msg.member.id) {
+                    return false
+                }
+                if ((reaction as any)._emoji.name !== '▶️') {
+                    return false
+                }
+                return true
+            })
+            collector.on('collect', () => {
+                if (!msg.member.voice.channel) {
+                    msg.reply('Você não está em um canal de voz')
+                }
+                msg.member.voice.channel.join()
+                msg.channel.send(`${prefix}tocar --id=${music.id}`)
+            })
         }
     } catch(err) {
         console.error(`Erro: ${err}`)

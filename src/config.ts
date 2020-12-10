@@ -1,4 +1,5 @@
-const ip: string = 'api.benaram.com'
+// const ip: string = 'api.benaram.com'
+const ip: string = '18.228.153.225'
 export default {
     url: `http://${ip}:888`,
     prefix: '?',

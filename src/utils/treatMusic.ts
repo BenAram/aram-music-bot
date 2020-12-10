@@ -1,3 +1,5 @@
+import { MessageEmbed } from 'discord.js'
+
 import config from '../config'
 import treatTime from './treatTime'
 
@@ -21,26 +23,29 @@ interface Music {
     editable: boolean
 }
 
-function treatMusic(data: Music, id?: string, prefix?: string): string {
-    return `
-${data.name}
-**Acessos:** ${data.access}
-Enviada por: **${data.user_owner.name}**
+function treatMusic(music: Music, id?: string, prefix?: string): MessageEmbed {
 
-
-**Descrição:**
-${data.description}
-
-**Palavras-chaves:**
-${data.keywords.join(', ')}
-
-**Data de envio:**
-${treatTime(data.createdAt)}
-
-**Ouça aqui:** http://music.benaram.com/app/music/${data.id || id}
-ou
-**Use o comando:** ${prefix || config.prefix}tocar --id=${data.id || id}
-    `
+    const message = new MessageEmbed()
+        .setColor('#3f48cc')
+        .setTitle(music.name)
+        .setURL(`http://music.benaram.com/app/music/${music.id || id}`)
+        .setAuthor(music.user_owner.name, `${music.user_owner.avatar ? `${config.url}/avatar/${music.user_owner.avatar}` : 'https://avatars0.githubusercontent.com/u/30473505?s=460&u=00b6ee203648603e4c746f813dfa75f106961b73&v=4'}`, `http://music.benaram.com/app/user/${music.user_owner.id}`)
+        .setDescription(music.description)
+        .addField('Palavras-chaves', music.keywords.join(', '))
+        .addFields(
+            {
+                name: 'Acessos',
+                value: `${music.access}`,
+                inline: true
+            },
+            {
+                name: 'Data de envio',
+                value: treatTime(music.createdAt),
+                inline: true
+            }
+        )
+        .setImage(`${config.url}/music-bg/${encodeURIComponent(music.music_background)}`)
+    return message
 }
 
 export default treatMusic
