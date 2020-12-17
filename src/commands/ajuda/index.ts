@@ -7,6 +7,8 @@ function Ajuda(msg: Message) {
     msg.member.send(`
 **Comandos de pesquisa**
 
+**${config.prefix}usuário "id"**
+Mostra informações de um usuário do app
 **${config.prefix}última-música**
 Você verá a música mais recente enviada no aplicativo.
 **${config.prefix}música "id"**

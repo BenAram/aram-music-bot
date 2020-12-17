@@ -3,6 +3,8 @@ import { MessageEmbed } from 'discord.js'
 import config from '../config'
 import treatTime from './treatTime'
 
+import client from '../services/client'
+
 interface Music {
     name: string
     description: string
@@ -28,7 +30,7 @@ function treatMusic(music: Music, id?: string, prefix?: string): MessageEmbed {
     const message = new MessageEmbed()
         .setColor('#3f48cc')
         .setTitle(music.name)
-        .setURL(`http://music.benaram.com/app/music/${music.id || id}`)
+        .setURL(`${client}/app/music/${music.id || id}`)
         .setAuthor(music.user_owner.name, `${music.user_owner.avatar ? `${config.url}/avatar/${music.user_owner.avatar}` : 'https://avatars0.githubusercontent.com/u/30473505?s=460&u=00b6ee203648603e4c746f813dfa75f106961b73&v=4'}`, `http://music.benaram.com/app/user/${music.user_owner.id}`)
         .setDescription(music.description)
         .addField('Palavras-chaves', music.keywords.join(', '))

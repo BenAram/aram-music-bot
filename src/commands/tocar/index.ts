@@ -1,6 +1,7 @@
-import { Message, Client } from 'discord.js'
+import { Message, Client, MessageEmbed } from 'discord.js'
 
 import api from '../../services/api'
+import clientUrl from '../../services/client'
 import config from '../../config'
 
 import { Server } from '../../services/db'
@@ -35,6 +36,8 @@ async function Tocar(msg: Message, id: string, client: Client) {
         const voiceChannel = msg.member.voice.channel
 
         let music: Music
+        let musics: Array<Music> = []
+        let playlist: boolean = false
 
         if (id.includes('--id=')) {
             let idSea: string = id.replace('--id=', '')
@@ -44,6 +47,15 @@ async function Tocar(msg: Message, id: string, client: Client) {
                 return
             }
             music = data
+        } if (id.includes('--playlist=')) {
+            let idPlaylist: string = id.replace('--playlist=', '')
+            const { data } = await api.get(`/playlists/${idPlaylist}`)
+            if (data.error) {
+                msg.channel.send(data.message)
+                return
+            }
+            playlist = true
+            musics = data.musics
         } else {
             const { data: musics } = await api.get(`/audio?q=${id}`)
             if (musics.error) {
@@ -60,7 +72,7 @@ async function Tocar(msg: Message, id: string, client: Client) {
                 music = musics.musicsKeywords[0]
             }
         }
-        if (!music) {
+        if (!music && !playlist) {
             return
         }
 
@@ -69,14 +81,42 @@ async function Tocar(msg: Message, id: string, client: Client) {
         } else {
             if (queue[msg.guild.id]) {
                 if (queue[msg.guild.id][0]) {
+                    if (playlist) {
+                        if (!musics[0]) {
+                            return msg.reply('Esta playlist não contém música')
+                        }
+                        msg.channel.send(`${musics.length} músicas adicionadas á fila.`)
+                        musics.forEach(music => {
+                            queue[msg.guild.id].push(music)
+                        })
+                        return
+                    }
                     queue[msg.guild.id].push(music)
                     msg.channel.send(`Música adicionada á fila: ${music.name}`)
                     return
                 }
             }
+            if (playlist) {
+                if (!musics[0]) {
+                    return msg.reply('Esta playlist não contém música')
+                }
+                music = musics[0]
+            }
             queue[msg.guild.id] = [music]
+            if (playlist) {
+                musics.forEach((music, index) => {
+                    if (index === 0) {
+                        return
+                    }
+                    queue[msg.guild.id].push(music)
+                })
+            }
 
-            msg.channel.send(`Tocando: ${music.name}, Pedida por: ${msg.member}`)
+            if (!playlist) {
+                msg.channel.send(`Tocando: ${music.name}, Pedida por: ${msg.member}`)
+            } else {
+                msg.channel.send(`Tocando ${musics.length} músicas, pedida por: ${msg.member}`)
+            }
             const connection = await voiceChannel.join()
             let play = connection.play(`${config.url}/audio/${music.name_upload}`)
             const server: any = await Server.findOne({ id: msg.guild.id })
@@ -86,6 +126,20 @@ async function Tocar(msg: Message, id: string, client: Client) {
             let prefix: string = config.prefix
             if (server) {
                 prefix = server.prefix
+            }
+            async function end() {
+                queue[msg.guild.id].shift()
+                if (queue[msg.guild.id][0]) {
+                    const server: any = await Server.findOne({ id: msg.guild.id })
+                    msg.channel.send(`**Tocando agora:** ${queue[msg.guild.id][0].name}`)
+                    play = connection.play(`${config.url}/audio/${queue[msg.guild.id][0].name_upload}`)
+                    play.on('finish', end)
+                    if (server) {
+                        play.setVolume(server.volume)
+                    }
+                } else {
+                    voiceChannel.leave()
+                }
             }
             async function message(msg2: Message) {
                 let prefix = config.prefix
@@ -163,6 +217,7 @@ async function Tocar(msg: Message, id: string, client: Client) {
                         if (queue[msg2.guild.id][0]) {
                             const server: any = await Server.findOne({ id: msg2.guild.id })
                             play = connection.play(`${config.url}/audio/${queue[msg2.guild.id][0].name_upload}`)
+                            play.on('finish', end)
                             if (server) {
                                 play.setVolume(server.volume)
                             }
@@ -183,9 +238,16 @@ async function Tocar(msg: Message, id: string, client: Client) {
                             return
                         }
                         if (queue[msg.guild.id][0]) {
-                            msg2.channel.send(`
-${queue[msg.guild.id].map((music, index) => `${index + 1} | ${music.name}`).join('\n')}
-                            `)
+                            const message = new MessageEmbed()
+                                .setColor('#3f48cc')
+                            queue[msg.guild.id].forEach((music, index) => {
+                                if (index <= 0) {
+                                    message.addField(`Música atual: ${music.name}`, `${clientUrl}/app/music/${music.id}`)
+                                } else {
+                                    message.addField(`${index} | ${music.name}`, `${clientUrl}/app/music/${music.id}`)
+                                }
+                            })
+                            msg2.channel.send(message)
                         } else {
                             msg2.channel.send('Não há fila nesse servidor.')
                         }
@@ -211,19 +273,7 @@ ${queue[msg.guild.id].map((music, index) => `${index + 1} | ${music.name}`).join
                 queue[msg.guild.id] = []
                 client.off('message', message)
             })
-            play.on('finish', async () => {
-                queue[msg.guild.id].shift()
-                if (queue[msg.guild.id][0]) {
-                    const server: any = await Server.findOne({ id: msg.guild.id })
-                    msg.channel.send(`**Tocando agora:** ${queue[msg.guild.id][0].name}`)
-                    play = connection.play(`${config.url}/audio/${queue[msg.guild.id][0].name_upload}`)
-                    if (server) {
-                        play.setVolume(server.volume)
-                    }
-                } else {
-                    voiceChannel.leave()
-                }
-            })
+            play.on('finish', end)
             client.on('message', message)
         }
     } catch(err) {

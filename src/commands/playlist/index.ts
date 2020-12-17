@@ -1,6 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js'
 
 import api from '../../services/api'
+import client from '../../services/client'
 import config from '../../config'
 
 interface Music {
@@ -39,9 +40,10 @@ async function Playlist(msg: Message, content: string) {
         } else {
             const playlist: Playlist = data
             const message = new MessageEmbed()
+                .setColor('#3f48cc')
                 .setTitle(playlist.name)
-                .setURL(`http://music.benaram.com/app/playlist/${content}`)
-                .setAuthor(playlist.owner, '', `http://music.benaram.com/app/user/${playlist.owner_id}`)
+                .setURL(`${client}/app/playlist/${content}`)
+                .setAuthor(playlist.owner, '', `${client}/app/user/${playlist.owner_id}`)
                 .addField(playlist.musics.length, `Música${playlist.musics.length > 1 ?  's' : ''}`)
 
             if (playlist.musics.length > 0) {
