@@ -1,62 +1,59 @@
-import { Message } from 'discord.js'
+import { Message, MessageEmbed, MessageReaction, ClientUser } from 'discord.js'
 
 import config from '../../config'
 
-function Ajuda(msg: Message) {
-    msg.channel.send('Enviei os comandos no seu privado, olha lá !! 😉')
-    msg.member.send(`
-**Comandos de pesquisa**
+import messages, { emojis } from './messages'
 
-**${config.prefix}usuário "id"**
-Mostra informações de um usuário do app
-**${config.prefix}última-música**
-Você verá a música mais recente enviada no aplicativo.
-**${config.prefix}música "id"**
-Você pode consultar alguns dados de determinada música com o id dela.
-**${config.prefix}playlist "id"**
-Você pode consultar alguns dados de determinada playlist com o id dela.
-**${config.prefix}pesquisar "termo"**
-Você pode pesquisar uma música com determinado termo.
+async function Ajuda(msg: Message) {
+    const embed = new MessageEmbed()
+        .setColor('#3f48cc')
+        .setTitle('Menu de ajuda')
+        .addFields({
+            name: 'Administração',
+            value: 'Emoji: ⚙️'
+        }, {
+            name: 'Utilidades',
+            value: 'Emoji: 🚻'
+        }, {
+            name: 'Pesquisa',
+            value: 'Emoji: 🔎'
+        }, {
+            name: 'Comandos de voz',
+            value: 'Emoji: 🔊'
+        })
 
-**Comandos relacionados ao chat de voz**
+    const message = await msg.channel.send(embed)
 
-**${config.prefix}tocar "id"**
-Você pode tocar uma música com o id dela
-**${config.prefix}pausar**
-Você pode pausar a música atual que está tocando
-**${config.prefix}continuar**
-Você pode continuar a música atual
-**${config.prefix}pular**
-Faz com que o bot pule para a próxima música
-**${config.prefix}fila**
-Mostra as músicas a serem tocadas
-**${config.prefix}volume "novo volume"**
-Um número de 0 a 100
-**${config.prefix}sair**
-Faz com que o bot saia da chamada
-
-**Utilidades**
-
-**${config.prefix}dizer "texto"**
-Faz com que o bot diga qualquer coisa
-**${config.prefix}novidades**
-Mostra a você as novidades da última versão lançado do aplicativo android.
-
-**Administração**
-
-**${config.prefix}bem-vindo "canal de texto"**
-Muda o canal de boas vindas do servidor
-**${config.prefix}mensagens-deletadas "canal de texto"**
-Muda o canal de mensagens deletadas do servidor
-**${config.prefix}limpar "número de mensagens para deletar"**
-Deleta mensagens para limpar o chat
-**${config.prefix}prefixo "novo prefixo"**
-Muda o prefixo do servidor para um novo
-**${config.prefix}expulsar "usuário" "motivo"**
-Expulsa um usuário com determinado motivo
-**${config.prefix}banir "usuário" "motivo"**
-Bane um usuário com determinado motivo
-    `)
+    emojis.forEach(emoji => {
+        message.react(emoji)
+    })
+    const collector = message.createReactionCollector((reaction: MessageReaction, user: ClientUser) => {
+        if (user.id !== msg.member.id) {
+            return false
+        }
+        if ((reaction as any)._emoji.name === '◀️') {
+            return true
+        }
+        if (!emojis.includes((reaction as any)._emoji.name)) {
+            return false
+        }
+        return true
+    })
+    collector.on('collect', (reaction: any) => {
+        if (reaction._emoji.name === '◀️') {
+            message.reactions.removeAll()
+            message.edit(embed)
+            emojis.forEach(emoji => {
+            message.react(emoji)
+            })
+            return
+        }
+        if (messages[reaction._emoji.name]) {
+            message.reactions.removeAll()
+            message.react('◀️')
+            message.edit(messages[reaction._emoji.name])
+        }
+    })
 }
 
 export default Ajuda

@@ -84,7 +84,7 @@ client.on('guildMemberAdd', async (member) => {
                 background.print(font, 170, 175, member.user.username)
                 background.composite(avatar, 40, 90).write('welcome.png')
 
-                channel.send('', { files: ['welcome.png'] })
+                channel.send(`${member}`, { files: ['welcome.png'] })
             }
         }
     } catch(err) {
