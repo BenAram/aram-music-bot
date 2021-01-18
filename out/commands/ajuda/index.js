@@ -1,63 +1,73 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = __importDefault(require("../../config"));
-function Ajuda(msg) {
-    msg.channel.send('Enviei os comandos no seu privado, olha lá !! 😉');
-    msg.member.send(`
-**Comandos de pesquisa**
-
-**${config_1.default.prefix}usuário "id"**
-Mostra informações de um usuário do app
-**${config_1.default.prefix}última-música**
-Você verá a música mais recente enviada no aplicativo.
-**${config_1.default.prefix}música "id"**
-Você pode consultar alguns dados de determinada música com o id dela.
-**${config_1.default.prefix}playlist "id"**
-Você pode consultar alguns dados de determinada playlist com o id dela.
-**${config_1.default.prefix}pesquisar "termo"**
-Você pode pesquisar uma música com determinado termo.
-
-**Comandos relacionados ao chat de voz**
-
-**${config_1.default.prefix}tocar "id"**
-Você pode tocar uma música com o id dela
-**${config_1.default.prefix}pausar**
-Você pode pausar a música atual que está tocando
-**${config_1.default.prefix}continuar**
-Você pode continuar a música atual
-**${config_1.default.prefix}pular**
-Faz com que o bot pule para a próxima música
-**${config_1.default.prefix}fila**
-Mostra as músicas a serem tocadas
-**${config_1.default.prefix}volume "novo volume"**
-Um número de 0 a 100
-**${config_1.default.prefix}sair**
-Faz com que o bot saia da chamada
-
-**Utilidades**
-
-**${config_1.default.prefix}dizer "texto"**
-Faz com que o bot diga qualquer coisa
-**${config_1.default.prefix}novidades**
-Mostra a você as novidades da última versão lançado do aplicativo android.
-
-**Administração**
-
-**${config_1.default.prefix}bem-vindo "canal de texto"**
-Muda o canal de boas vindas do servidor
-**${config_1.default.prefix}mensagens-deletadas "canal de texto"**
-Muda o canal de mensagens deletadas do servidor
-**${config_1.default.prefix}limpar "número de mensagens para deletar"**
-Deleta mensagens para limpar o chat
-**${config_1.default.prefix}prefixo "novo prefixo"**
-Muda o prefixo do servidor para um novo
-**${config_1.default.prefix}expulsar "usuário" "motivo"**
-Expulsa um usuário com determinado motivo
-**${config_1.default.prefix}banir "usuário" "motivo"**
-Bane um usuário com determinado motivo
-    `);
+const discord_js_1 = require("discord.js");
+const messages_1 = __importStar(require("./messages"));
+async function Ajuda(msg) {
+    const embed = new discord_js_1.MessageEmbed()
+        .setColor('#3f48cc')
+        .setTitle('Menu de ajuda')
+        .addFields({
+        name: 'Administração',
+        value: 'Emoji: ⚙️'
+    }, {
+        name: 'Utilidades',
+        value: 'Emoji: 🚻'
+    }, {
+        name: 'Pesquisa',
+        value: 'Emoji: 🔎'
+    }, {
+        name: 'Comandos de voz',
+        value: 'Emoji: 🔊'
+    });
+    const message = await msg.channel.send(embed);
+    messages_1.emojis.forEach(emoji => {
+        message.react(emoji);
+    });
+    const collector = message.createReactionCollector((reaction, user) => {
+        if (user.id !== msg.member.id) {
+            return false;
+        }
+        if (reaction._emoji.name === '◀️') {
+            return true;
+        }
+        if (!messages_1.emojis.includes(reaction._emoji.name)) {
+            return false;
+        }
+        return true;
+    });
+    collector.on('collect', (reaction) => {
+        if (reaction._emoji.name === '◀️') {
+            message.reactions.removeAll();
+            message.edit(embed);
+            messages_1.emojis.forEach(emoji => {
+                message.react(emoji);
+            });
+            return;
+        }
+        if (messages_1.default[reaction._emoji.name]) {
+            message.reactions.removeAll();
+            message.react('◀️');
+            message.edit(messages_1.default[reaction._emoji.name]);
+        }
+    });
 }
 exports.default = Ajuda;

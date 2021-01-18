@@ -9,8 +9,28 @@ import { Server } from './services/db'
 
 const client = new Client()
 
+let statusMode: number = 0
+let statusMax: number = 2
+
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
+    setInterval(() => {
+        switch (statusMode) {
+            case 0:
+                client.user.setActivity({ name: 'https://aram.app.br', type: 'PLAYING' })
+                break
+            case 1:
+                client.user.setActivity({ name: '?ajuda', type: 'LISTENING' })
+                break
+            case 2:
+                client.user.setActivity({ name: `Estou em ${client.guilds.cache.size} servidores`, type: 'PLAYING' })
+        }
+        if (statusMode >= statusMax) {
+            statusMode = 0
+        } else {
+            statusMode++
+        }
+    }, 10000)
 })
 client.on('channelDelete', async (channelDeleted) => {
     try {

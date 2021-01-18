@@ -9,8 +9,28 @@ const config_1 = __importDefault(require("./config"));
 const commands_1 = __importDefault(require("./commands"));
 const db_1 = require("./services/db");
 const client = new discord_js_1.Client();
+let statusMode = 0;
+let statusMax = 2;
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+    setInterval(() => {
+        switch (statusMode) {
+            case 0:
+                client.user.setActivity({ name: 'https://aram.app.br', type: 'PLAYING' });
+                break;
+            case 1:
+                client.user.setActivity({ name: '?ajuda', type: 'LISTENING' });
+                break;
+            case 2:
+                client.user.setActivity({ name: `Estou em ${client.guilds.cache.size} servidores`, type: 'PLAYING' });
+        }
+        if (statusMode >= statusMax) {
+            statusMode = 0;
+        }
+        else {
+            statusMode++;
+        }
+    }, 10000);
 });
 client.on('channelDelete', async (channelDeleted) => {
     try {
@@ -81,7 +101,7 @@ client.on('guildMemberAdd', async (member) => {
                 avatar.mask(mask, 0, 0);
                 background.print(font, 170, 175, member.user.username);
                 background.composite(avatar, 40, 90).write('welcome.png');
-                channel.send('', { files: ['welcome.png'] });
+                channel.send(`${member}`, { files: ['welcome.png'] });
             }
         }
     }

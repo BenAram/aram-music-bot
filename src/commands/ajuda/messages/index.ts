@@ -3,6 +3,7 @@ import { MessageEmbed } from 'discord.js'
 import administration from './administration'
 import utilities from './utilities'
 import pesquisa from './pesquisa'
+import voz from './voz'
 
 interface Messages {
     [index: string]: MessageEmbed
@@ -11,7 +12,8 @@ interface Messages {
 const messages: Messages = {
     '⚙️': administration,
     '🚻': utilities,
-    '🔎': pesquisa
+    '🔎': pesquisa,
+    '🔊': voz
 }
 const emojis = [
     '⚙️',
