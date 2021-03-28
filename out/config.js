@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ip = 'api.aram.app.br';
+const ip = 'aram-music-api.benaram.repl.co';
 exports.default = {
     url: `https://${ip}`,
     prefix: '?',

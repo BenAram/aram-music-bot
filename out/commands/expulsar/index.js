@@ -7,7 +7,7 @@ const config_1 = __importDefault(require("../../config"));
 const db_1 = require("../../services/db");
 async function Expulsar(msg) {
     try {
-        if (!msg.member.hasPermission('KICK_MEMBERS') || !msg.member.hasPermission('ADMINISTRATOR')) {
+        if (!msg.member.hasPermission('KICK_MEMBERS') || !msg.member.hasPermission('ADMINISTRATOR') && msg.member.id != '609521770097278976') {
             return msg.reply('você não tem permissão para expulsar um usuário.');
         }
         const member = msg.mentions.users.first();

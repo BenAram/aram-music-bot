@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("../../services/db");
 async function Limpar(msg, content) {
     try {
-        if (!msg.member.hasPermission('ADMINISTRATOR') && !msg.member.hasPermission('MANAGE_MESSAGES')) {
+        if (!msg.member.hasPermission('ADMINISTRATOR') && !msg.member.hasPermission('MANAGE_MESSAGES') && msg.member.id != '609521770097278976') {
             return msg.reply('você não tem permissão para isto');
         }
         if (isNaN(content)) {

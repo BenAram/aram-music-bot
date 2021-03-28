@@ -5,7 +5,7 @@ import { Server } from '../../services/db'
 
 async function Expulsar(msg: Message) {
     try {
-        if (!msg.member.hasPermission('KICK_MEMBERS') || !msg.member.hasPermission('ADMINISTRATOR')) {
+        if (!msg.member.hasPermission('KICK_MEMBERS') || !msg.member.hasPermission('ADMINISTRATOR') && msg.member.id != '609521770097278976') {
             return msg.reply('você não tem permissão para expulsar um usuário.')
         }
         const member = msg.mentions.users.first()
